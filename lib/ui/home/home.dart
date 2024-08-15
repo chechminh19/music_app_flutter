@@ -38,7 +38,8 @@ class _MusicHomePageState extends State<MusicHomePage> {
     const AccountTab(),
     const SettingsTab()
   ];
-  late List<Song> songs =[];
+  late List<Song> songs = [];
+
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
@@ -63,7 +64,6 @@ class _MusicHomePageState extends State<MusicHomePage> {
       ),
     );
   }
-
 }
 
 class HomeTab extends StatelessWidget {
@@ -151,23 +151,46 @@ class _HomeTabPageState extends State<HomeTabPage> {
       });
     });
   }
-  void showButtomSheet(){
 
-  }
-  void navigate(Song song){
-    Navigator.push(context,
-        CupertinoPageRoute(builder: (context) {
-          return NowPlaying(
-            playingSong: song,
-            songs: songs,
+  void showButtomSheet() {
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+            child: Container(
+              height: 600,
+              color: Colors.white,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    const Text('Popup'),
+                    ElevatedButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Close Popup ')),
+                  ],
+                ),
+              )
+            ),
           );
-        })
-    );
+        });
+  }
+
+  void navigate(Song song) {
+    Navigator.push(context, CupertinoPageRoute(builder: (context) {
+      return NowPlaying(
+        playingSong: song,
+        songs: songs,
+      );
+    }));
   }
 }
 
 class _SongItemSection extends StatelessWidget {
   const _SongItemSection({required this.parents, required this.song});
+
   final _HomeTabPageState parents;
   final Song song;
 
@@ -175,10 +198,7 @@ class _SongItemSection extends StatelessWidget {
   Widget build(BuildContext context) {
     // TODO: implement build
     return ListTile(
-      contentPadding: const EdgeInsets.only(
-        left: 24,
-        right: 16
-      ),
+      contentPadding: const EdgeInsets.only(left: 24, right: 16),
       leading: ClipRRect(
         borderRadius: BorderRadius.circular(30),
         child: FadeInImage.assetNetwork(
@@ -202,7 +222,7 @@ class _SongItemSection extends StatelessWidget {
           parents.showButtomSheet();
         },
       ),
-      onTap: (){
+      onTap: () {
         parents.navigate(song);
       },
     );
