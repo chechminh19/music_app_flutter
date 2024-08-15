@@ -6,6 +6,7 @@ import 'package:music_app/ui/settings/settings.dart';
 import 'package:music_app/ui/users/users.dart';
 
 import '../../data/model/song.dart';
+import '../now_playing/playing.dart';
 
 class MusicApp extends StatelessWidget {
   const MusicApp({super.key});
@@ -37,7 +38,7 @@ class _MusicHomePageState extends State<MusicHomePage> {
     const AccountTab(),
     const SettingsTab()
   ];
-
+  late List<Song> songs =[];
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
@@ -62,6 +63,7 @@ class _MusicHomePageState extends State<MusicHomePage> {
       ),
     );
   }
+
 }
 
 class HomeTab extends StatelessWidget {
@@ -139,7 +141,7 @@ class _HomeTabPageState extends State<HomeTabPage> {
   }
 
   Widget getRow(int index) {
-    return _SongItemSection(parents: _MusicHomePageState(), song: songs[index]);
+    return _SongItemSection(parents: this, song: songs[index]);
   }
 
   void observeData() {
@@ -152,22 +154,21 @@ class _HomeTabPageState extends State<HomeTabPage> {
   void showButtomSheet(){
 
   }
-  // void navigate(Song song){
-  //     Navigator.push(context,
-  //       CupertinoPageRoute(builder: (context) {
-  //           return NowPlaying(
-  //             songs: songs,
-  //             playingSong: song
-  //           );
-  //       })
-  //     );
-  // }
+  void navigate(Song song){
+    Navigator.push(context,
+        CupertinoPageRoute(builder: (context) {
+          return NowPlaying(
+            playingSong: song,
+            songs: songs,
+          );
+        })
+    );
+  }
 }
 
 class _SongItemSection extends StatelessWidget {
   const _SongItemSection({required this.parents, required this.song});
-
-  final _MusicHomePageState parents;
+  final _HomeTabPageState parents;
   final Song song;
 
   @override
@@ -198,11 +199,11 @@ class _SongItemSection extends StatelessWidget {
       trailing: IconButton(
         icon: const Icon(Icons.more_horiz),
         onPressed: () {
-          //parents.showButtomSheet();
+          parents.showButtomSheet();
         },
       ),
       onTap: (){
-        //parents.navigate(song);
+        parents.navigate(song);
       },
     );
   }
