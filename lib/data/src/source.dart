@@ -10,7 +10,7 @@ abstract interface class DataSource {
 class RemoteDataSource implements DataSource {
   @override
   Future<List<Song>?> loadData() async  {
-    const url = 'https://thantrieu.com/resources/braniumapis/songs.json';
+    const url = 'https://api.jsonbin.io/v3/b/66c44f78acd3cb34a876f6f4';
     final uri = Uri.parse(url);
     final resposne = await http.get(uri);
     if(resposne.statusCode == 200){

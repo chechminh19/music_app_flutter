@@ -49,10 +49,7 @@ class _NowPlayingPageState extends State<NowPlayingPage>
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery
-        .of(context)
-        .size
-        .width;
+    final screenWidth = MediaQuery.of(context).size.width;
     const delta = 64; //distance image to cover
     final radius = (screenWidth - delta) / 2;
     return CupertinoPageScaffold(
@@ -66,110 +63,106 @@ class _NowPlayingPageState extends State<NowPlayingPage>
         child: Scaffold(
           body: Center(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(widget.playingSong.album),
-                  const SizedBox(
-                    height: 0,
-                  ),
-                  const Text('_ ___ _'),
-                  const SizedBox(
-                    height: 48,
-                  ),
-                  RotationTransition(
-                    turns: Tween(begin: 0.0, end: 1.0).animate(tweenImage),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(radius),
-                      child: FadeInImage.assetNetwork(
-                          placeholder: 'assests/itunes.jpg',
-                          image: widget.playingSong.image,
-                          width: screenWidth - delta,
-                          height: screenWidth - delta,
-                          imageErrorBuilder: (context, error, stackTrace) {
-                            return Image.asset('assests/itunes.jpg',
-                                width: screenWidth - delta,
-                                height: screenWidth - delta);
-                          }),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 50, bottom: 20),
-                    child: SizedBox(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(widget.playingSong.album),
+              const SizedBox(
+                height: 0,
+              ),
+              const Text('_ ___ _'),
+              const SizedBox(
+                height: 48,
+              ),
+              RotationTransition(
+                turns: Tween(begin: 0.0, end: 1.0).animate(tweenImage),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(radius),
+                  child: FadeInImage.assetNetwork(
+                      placeholder: 'assests/itunes.jpg',
+                      image: widget.playingSong.image,
+                      width: screenWidth - delta,
+                      height: screenWidth - delta,
+                      imageErrorBuilder: (context, error, stackTrace) {
+                        return Image.asset('assests/itunes.jpg',
+                            width: screenWidth - delta,
+                            height: screenWidth - delta);
+                      }),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 50, bottom: 20),
+                child: SizedBox(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      IconButton(
+                        onPressed: () {},
+                        icon: Icon(Icons.share_outlined),
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      Column(
                         children: [
-                          IconButton(
-                            onPressed: () {},
-                            icon: Icon(Icons.share_outlined),
-                            color: Theme
-                                .of(context)
-                                .colorScheme
-                                .primary,
-                          ),
-                          Column(
-                            children: [
-                              Text(widget.playingSong.title,
-                                  style: Theme
-                                      .of(context)
-                                      .textTheme
-                                      .bodyMedium!
-                                      .copyWith(
-                                      color: Theme
-                                          .of(context)
+                          Text(widget.playingSong.title,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .copyWith(
+                                      color: Theme.of(context)
                                           .textTheme
                                           .bodyMedium!
                                           .color)),
-                              const SizedBox(
-                                height: 8,
-                              ),
-                              Text(
-                                widget.playingSong.artist,
-                                style: Theme
-                                    .of(context)
-                                    .textTheme
-                                    .bodyMedium!
-                                    .copyWith(
-                                    color: Theme
-                                        .of(context)
+                          const SizedBox(
+                            height: 8,
+                          ),
+                          Text(
+                            widget.playingSong.artist,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(
+                                    color: Theme.of(context)
                                         .textTheme
                                         .bodyMedium!
                                         .color),
-                              ),
-                            ],
-                          ),
-                          IconButton(
-                            onPressed: () {},
-                            icon: Icon(Icons.favorite_border_outlined),
-                            color: Theme
-                                .of(context)
-                                .colorScheme
-                                .primary,
                           ),
                         ],
                       ),
-                    ),
+                      IconButton(
+                        onPressed: () {},
+                        icon: Icon(Icons.favorite_border_outlined),
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ],
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      top: 50,
-                      left: 24,
-                      right: 24,
-                      bottom: 50,
-                    ),
-                    child: _progressBar(),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      //top: 0,
-                      left: 24,
-                      right: 24,
-                      //bottom: 50,
-                    ),
-                    child: _mediaButtons(),
-                  )
-                ],
-              )),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(
+                  top: 50,
+                  left: 24,
+                  right: 24,
+                  bottom: 50,
+                ),
+                child: _progressBar(),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(
+                  //top: 0,
+                  left: 24,
+                  right: 24,
+                  //bottom: 50,
+                ),
+                child: _mediaButtons(),
+              )
+            ],
+          )),
         ));
+  }
+
+  @override
+  void dispose() {
+    _audioPlayerManager.dispose();
+    super.dispose();
   }
 
   Widget _mediaButtons() {
@@ -211,7 +204,19 @@ class _NowPlayingPageState extends State<NowPlayingPage>
           final progress = durationState?.progress ?? Duration.zero;
           final buffered = durationState?.buffered ?? Duration.zero;
           final total = durationState?.total ?? Duration.zero;
-          return ProgressBar(progress: progress, total: total);
+          return ProgressBar(
+            progress: progress,
+            total: total,
+            buffered: buffered,
+            onSeek: _audioPlayerManager.player.seek,
+            barHeight: 6.0,
+            barCapShape: BarCapShape.round,
+            baseBarColor: Colors.grey.withOpacity(0.5),
+            progressBarColor: Colors.orange,
+            bufferedBarColor: Colors.grey.withOpacity(0.7),
+            thumbColor: Colors.orange,
+            thumbRadius: 10.0,
+          );
         });
   }
 
@@ -230,20 +235,30 @@ class _NowPlayingPageState extends State<NowPlayingPage>
             height: 48,
             child: const CircularProgressIndicator(),
           );
-        } else if(playing != true) {
-            return MediaButtonControl(function: () {
-              _audioPlayerManager.player.play();
-            },
-                icon: Icons.play_arrow, color: null, size: 50);
-        } else if(processingState != ProcessingState.completed){
-          return MediaButtonControl(function: () {
-            _audioPlayerManager.player.pause();
-          },
-              icon: Icons.pause_circle_filled, color: null, size: 50);
+        } else if (playing != true) {
+          return MediaButtonControl(
+              function: () {
+                _audioPlayerManager.player.play();
+              },
+              icon: Icons.play_arrow,
+              color: null,
+              size: 50);
+        } else if (processingState != ProcessingState.completed) {
+          return MediaButtonControl(
+              function: () {
+                _audioPlayerManager.player.pause();
+              },
+              icon: Icons.pause_circle_filled,
+              color: null,
+              size: 50);
         } else {
-          return MediaButtonControl(function: (){
-              _audioPlayerManager.player.seek(Duration.zero);
-          }, icon: Icons.replay, color: null, size: 50);
+          return MediaButtonControl(
+              function: () {
+                _audioPlayerManager.player.seek(Duration.zero);
+              },
+              icon: Icons.replay,
+              color: null,
+              size: 50);
         }
       },
     );
@@ -275,10 +290,7 @@ class _MediaButtonControlState extends State<MediaButtonControl> {
       onPressed: widget.function,
       icon: Icon(widget.icon),
       iconSize: widget.size,
-      color: widget.color ?? Theme
-          .of(context)
-          .colorScheme
-          .primary,
+      color: widget.color ?? Theme.of(context).colorScheme.primary,
     );
   }
 }
