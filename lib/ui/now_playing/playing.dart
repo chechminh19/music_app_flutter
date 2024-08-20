@@ -38,9 +38,11 @@ class _NowPlayingPageState extends State<NowPlayingPage>
   late AudioPlayerManager _audioPlayerManager;
   late int _selectedItemIndex;
   late Song _song;
+  late double _currentPosition;
   @override
   void initState() {
     super.initState();
+    _currentPosition = 0.0;
     _song = widget.playingSong;
     tweenImage = AnimationController(
         vsync: this, duration: const Duration(microseconds: 12000));
@@ -68,7 +70,7 @@ class _NowPlayingPageState extends State<NowPlayingPage>
               child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(widget.playingSong.album),
+              Text(_song.album),
               const SizedBox(
                 height: 0,
               ),
@@ -82,7 +84,7 @@ class _NowPlayingPageState extends State<NowPlayingPage>
                   borderRadius: BorderRadius.circular(radius),
                   child: FadeInImage.assetNetwork(
                       placeholder: 'assests/itunes.jpg',
-                      image: widget.playingSong.image,
+                      image: _song.image,
                       width: screenWidth - delta,
                       height: screenWidth - delta,
                       imageErrorBuilder: (context, error, stackTrace) {
@@ -105,7 +107,7 @@ class _NowPlayingPageState extends State<NowPlayingPage>
                       ),
                       Column(
                         children: [
-                          Text(widget.playingSong.title,
+                          Text(_song.title,
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyMedium!
@@ -118,7 +120,7 @@ class _NowPlayingPageState extends State<NowPlayingPage>
                             height: 8,
                           ),
                           Text(
-                            widget.playingSong.artist,
+                            _song.artist,
                             style: Theme.of(context)
                                 .textTheme
                                 .bodyMedium!
@@ -165,6 +167,7 @@ class _NowPlayingPageState extends State<NowPlayingPage>
   @override
   void dispose() {
     _audioPlayerManager.dispose();
+    tweenImage.dispose();
     super.dispose();
   }
 
@@ -242,6 +245,8 @@ class _NowPlayingPageState extends State<NowPlayingPage>
           return MediaButtonControl(
               function: () {
                 _audioPlayerManager.player.play();
+                tweenImage.forward(from: _currentPosition);
+                tweenImage.repeat();
               },
               icon: Icons.play_arrow,
               color: null,
@@ -249,14 +254,24 @@ class _NowPlayingPageState extends State<NowPlayingPage>
         } else if (processingState != ProcessingState.completed) {
           return MediaButtonControl(
               function: () {
+                //stop song, tween
                 _audioPlayerManager.player.pause();
+                tweenImage.stop();
+                _currentPosition = tweenImage.value;
               },
               icon: Icons.pause_circle_filled,
               color: null,
               size: 50);
         } else {
+          if(processingState == ProcessingState.completed){
+            tweenImage.stop();
+            _currentPosition = 0.0;
+          }
+          // if song completed, then stop and repeat,reset tween
           return MediaButtonControl(
               function: () {
+                tweenImage.forward(from: _currentPosition);
+                tweenImage.repeat();
                 _audioPlayerManager.player.seek(Duration.zero);
               },
               icon: Icons.replay,
