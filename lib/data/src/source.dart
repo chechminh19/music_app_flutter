@@ -3,14 +3,15 @@ import 'package:flutter/services.dart';
 
 import '../model/song.dart';
 import 'package:http/http.dart' as http;
-
+//https://gist.githubusercontent.com/chechminh19/ca8111e13515ac364c1fe00c47c07c92/raw/9e7caf5e3e65c8ee125b0319c0e3e8dead2f2e11/songs.json
+//https://thantrieu.com/resources/braniumapis/songs.json
 abstract interface class DataSource {
     Future<List<Song>?> loadData();
 }
 class RemoteDataSource implements DataSource {
   @override
   Future<List<Song>?> loadData() async  {
-    const url = 'https://api.jsonbin.io/v3/b/66c44f78acd3cb34a876f6f4';
+    const url = 'https://gist.githubusercontent.com/chechminh19/ca8111e13515ac364c1fe00c47c07c92/raw/9e7caf5e3e65c8ee125b0319c0e3e8dead2f2e11/songs.json';
     final uri = Uri.parse(url);
     final resposne = await http.get(uri);
     if(resposne.statusCode == 200){

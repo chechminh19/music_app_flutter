@@ -36,15 +36,18 @@ class _NowPlayingPageState extends State<NowPlayingPage>
     with SingleTickerProviderStateMixin {
   late AnimationController tweenImage;
   late AudioPlayerManager _audioPlayerManager;
-
+  late int _selectedItemIndex;
+  late Song _song;
   @override
   void initState() {
     super.initState();
+    _song = widget.playingSong;
     tweenImage = AnimationController(
         vsync: this, duration: const Duration(microseconds: 12000));
     _audioPlayerManager =
-        AudioPlayerManager(songUrl: widget.playingSong.source);
+        AudioPlayerManager(songUrl: _song.source);
     _audioPlayerManager.init();
+    _selectedItemIndex = widget.songs.indexOf(widget.playingSong);
   }
 
   @override
@@ -175,14 +178,14 @@ class _NowPlayingPageState extends State<NowPlayingPage>
               icon: Icons.shuffle,
               color: Colors.deepPurple,
               size: 30),
-          const MediaButtonControl(
-              function: null,
+          MediaButtonControl(
+              function: _setPrevSong,
               icon: Icons.skip_previous,
               color: Colors.deepPurple,
               size: 40),
           _playButton(),
-          const MediaButtonControl(
-              function: null,
+          MediaButtonControl(
+              function: _setNextSong,
               icon: Icons.skip_next_sharp,
               color: Colors.deepPurple,
               size: 40),
@@ -263,6 +266,23 @@ class _NowPlayingPageState extends State<NowPlayingPage>
       },
     );
   }
+  void _setNextSong(){
+    ++_selectedItemIndex;
+    final nextSong = widget.songs[_selectedItemIndex];
+    _audioPlayerManager.updateSongUrl(nextSong.source);
+    setState(() {
+      _song = nextSong;
+    });
+  }
+  void _setPrevSong(){
+    --_selectedItemIndex;
+    final nextSong = widget.songs[_selectedItemIndex];
+    _audioPlayerManager.updateSongUrl(nextSong.source);
+    setState(() {
+      _song = nextSong;
+    });
+  }
+
 }
 
 class MediaButtonControl extends StatefulWidget {
