@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -38,7 +40,9 @@ class _NowPlayingPageState extends State<NowPlayingPage>
   late AudioPlayerManager _audioPlayerManager;
   late int _selectedItemIndex;
   late Song _song;
-  late double _currentPosition;
+  late double _currentPosition = 0.0;
+  bool _isShuffle = false;
+
   @override
   void initState() {
     super.initState();
@@ -46,8 +50,7 @@ class _NowPlayingPageState extends State<NowPlayingPage>
     _song = widget.playingSong;
     tweenImage = AnimationController(
         vsync: this, duration: const Duration(microseconds: 12000));
-    _audioPlayerManager =
-        AudioPlayerManager(songUrl: _song.source);
+    _audioPlayerManager = AudioPlayerManager(songUrl: _song.source);
     _audioPlayerManager.init();
     _selectedItemIndex = widget.songs.indexOf(widget.playingSong);
   }
@@ -176,10 +179,10 @@ class _NowPlayingPageState extends State<NowPlayingPage>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          const MediaButtonControl(
-              function: null,
+          MediaButtonControl(
+              function: _setShuffle,
               icon: Icons.shuffle,
-              color: Colors.deepPurple,
+              color: _getShuffleColor(),
               size: 30),
           MediaButtonControl(
               function: _setPrevSong,
@@ -235,6 +238,7 @@ class _NowPlayingPageState extends State<NowPlayingPage>
         final playing = playState?.playing;
         if (processingState == ProcessingState.loading ||
             processingState == ProcessingState.buffering) {
+          _stopRotaton();
           return Container(
             margin: const EdgeInsets.all(8),
             width: 48,
@@ -252,10 +256,12 @@ class _NowPlayingPageState extends State<NowPlayingPage>
               color: null,
               size: 50);
         } else if (processingState != ProcessingState.completed) {
+          _playRotation();
           return MediaButtonControl(
               function: () {
                 //stop song, tween
                 _audioPlayerManager.player.pause();
+                _stopRotaton();
                 tweenImage.stop();
                 _currentPosition = tweenImage.value;
               },
@@ -263,9 +269,14 @@ class _NowPlayingPageState extends State<NowPlayingPage>
               color: null,
               size: 50);
         } else {
-          if(processingState == ProcessingState.completed){
+          if (processingState == ProcessingState.completed) {
+            _stopRotaton();
+            _resetRotation();
             tweenImage.stop();
             _currentPosition = 0.0;
+            if (_isShuffle) {
+              _setNextSong();
+            }
           }
           // if song completed, then stop and repeat,reset tween
           return MediaButtonControl(
@@ -273,6 +284,8 @@ class _NowPlayingPageState extends State<NowPlayingPage>
                 tweenImage.forward(from: _currentPosition);
                 tweenImage.repeat();
                 _audioPlayerManager.player.seek(Duration.zero);
+                _resetRotation();
+                _playRotation();
               },
               icon: Icons.replay,
               color: null,
@@ -281,16 +294,27 @@ class _NowPlayingPageState extends State<NowPlayingPage>
       },
     );
   }
-  void _setNextSong(){
-    ++_selectedItemIndex;
-    final nextSong = widget.songs[_selectedItemIndex];
-    _audioPlayerManager.updateSongUrl(nextSong.source);
+
+  void _setShuffle() {
     setState(() {
-      _song = nextSong;
+      _isShuffle = !_isShuffle;
     });
   }
-  void _setPrevSong(){
-    --_selectedItemIndex;
+
+  Color? _getShuffleColor() {
+    return _isShuffle ? Colors.orange : Colors.grey;
+  }
+
+  void _setNextSong() {
+    if (_isShuffle) {
+      var random = Random();
+      _selectedItemIndex = random.nextInt(widget.songs.length - 1);
+    } else {
+      ++_selectedItemIndex;
+    }
+    if (_selectedItemIndex >= widget.songs.length) {
+      _selectedItemIndex = _selectedItemIndex % widget.songs.length;
+    }
     final nextSong = widget.songs[_selectedItemIndex];
     _audioPlayerManager.updateSongUrl(nextSong.source);
     setState(() {
@@ -298,6 +322,41 @@ class _NowPlayingPageState extends State<NowPlayingPage>
     });
   }
 
+  void _setPrevSong() {
+    if (_isShuffle) {
+      var random = Random();
+      _selectedItemIndex = random.nextInt(widget.songs.length - 1);
+    } else {
+      --_selectedItemIndex;
+    }
+    if (_selectedItemIndex < 0) {
+      _selectedItemIndex = (-1 * _selectedItemIndex) % widget.songs.length;
+    }
+    final nextSong = widget.songs[_selectedItemIndex];
+    _audioPlayerManager.updateSongUrl(nextSong.source);
+    setState(() {
+      _song = nextSong;
+    });
+  }
+
+  void _playRotation() {
+    tweenImage.forward(from: _currentPosition);
+    tweenImage.repeat();
+  }
+
+  void _stopRotaton() {
+    _pauseRotaton();
+    _currentPosition = tweenImage.value;
+  }
+
+  void _pauseRotaton() {
+    tweenImage.stop();
+  }
+
+  void _resetRotation() {
+    _currentPosition = 0.0;
+    tweenImage.value = _currentPosition;
+  }
 }
 
 class MediaButtonControl extends StatefulWidget {
