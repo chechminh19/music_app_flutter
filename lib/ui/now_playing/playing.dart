@@ -50,9 +50,14 @@ class _NowPlayingPageState extends State<NowPlayingPage>
     _currentPosition = 0.0;
     _song = widget.playingSong;
     tweenImage = AnimationController(
-        vsync: this, duration: const Duration(microseconds: 12000));
-    _audioPlayerManager = AudioPlayerManager(songUrl: _song.source);
-    _audioPlayerManager.init();
+        vsync: this, duration: const Duration(microseconds: 100000000));
+    _audioPlayerManager = AudioPlayerManager();
+    if (_audioPlayerManager.songUrl.compareTo(_song.source) != 0) {
+      _audioPlayerManager.updateSongUrl(_song.source);
+      _audioPlayerManager.init(isNewSong: true);
+    } else {
+      _audioPlayerManager.init(isNewSong: false);
+    }
     _selectedItemIndex = widget.songs.indexOf(widget.playingSong);
     _loopMode = LoopMode.off;
   }
@@ -171,7 +176,6 @@ class _NowPlayingPageState extends State<NowPlayingPage>
 
   @override
   void dispose() {
-    _audioPlayerManager.dispose();
     tweenImage.dispose();
     super.dispose();
   }
@@ -306,7 +310,7 @@ class _NowPlayingPageState extends State<NowPlayingPage>
       _audioPlayerManager.player.setLoopMode(_loopMode);
     });
   }
-  
+
   IconData _repeatingIcon() {
     return switch (_loopMode) {
       LoopMode.one => Icons.repeat_one,
